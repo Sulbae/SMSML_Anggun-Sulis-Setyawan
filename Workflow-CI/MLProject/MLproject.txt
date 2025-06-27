@@ -1,4 +1,4 @@
-name: workflow-wp-mlflow
+name: workflow-water-potability-modelling
 
 conda_env: conda.yaml
 

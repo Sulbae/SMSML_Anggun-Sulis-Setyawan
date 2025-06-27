@@ -16,7 +16,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       # Setup Python 3.12.11
       - name: Set up Python 3.12.11
@@ -38,7 +39,11 @@ jobs:
       # Run as a mlflow project
       - name: Run mlflow project
         run: |
-          mlflow run MLproject --env-manager=local
+          mlflow run .\ 
+            -p n_estimators=100 \
+            -p max_depth=5 \
+            -p dataset=${{ env.CSV_URL }}
+            --env-manager=local
 
       # Save models to Github Repository
       - name: Save mlruns to Repository
@@ -47,4 +52,4 @@ jobs:
           git config --global user.email ${{ secrets.email }}
           git add mlruns/
           git commit -m "Save mlruns from CI run"
-          git push origin master
+          git push origin main

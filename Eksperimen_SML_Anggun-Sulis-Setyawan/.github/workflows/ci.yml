@@ -1,4 +1,4 @@
-name: CI
+name: Preprocessing-CI
 
 on:
   push:
@@ -9,42 +9,53 @@ on:
       - main
 
 env:
-  CSV_URL: "MLproject/water_potability_preprocessing.csv"
+  DATASET_PATH: "MLproject/water_potability_preprocessing.csv"
+  TARGET_COLUMN: "Potability"
+  IMPUTE_METHODE: "median"
+  SAVE_PATH: "preprocessor.joblib"
 
 jobs:
-  build:
+  preprocess:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      # Setup Python 3.12.11
+      # Setup Python
       - name: Set up Python 3.12.11
         uses: actions/setup-python@v4
         with:
           python-version: "3.12.11"
       
-      # Check Env Variables
-      - name: Check Env
+      # Check file dan env
+      - name: Show dataset path
         run: |
-          echo $CSV_URL
+          echo "Dataset path: $DATASET_PATH"
+          ls -lah MLproject/
       
       # Install mlflow
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install mlflow
+          pip install mlflow pandas scikit-learn joblib
 
-      # Run as a mlflow project
-      - name: Run mlflow project
+      # Run mlflow preprocessing step
+      - name: Run mlflow preprocessing
         run: |
-          mlflow run MLproject --env-manager=local
+          mlflow run . \
+            --entry-point main\
+            --env-manager=local \
+            -p dataset=$DATASET_PATH \
+            -p target_column=$TARGET_COLUMN \
+            -p impute_method=$IMPUTE_METHODE \
+            -p save_path=$SAVE_PATH
 
       # Save models to Github Repository
-      - name: Save mlruns to Repository
+      - name: Save mlruns to repository
         run: |
           git config --global user.name ${{ secrets.username }}
           git config --global user.email ${{ secrets.email }}
-          git add mlruns/
-          git commit -m "Save mlruns from CI run"
-          git push origin master
+          git add $SAVE_PATH
+          git commit -m "Add preprocessor from CI run"
+          git push origin main
