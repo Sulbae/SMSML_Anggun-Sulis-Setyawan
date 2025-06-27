@@ -10,7 +10,7 @@ mlflow.set_tracking_uri("http://127.0.0.1:5000/")
 # Membuat file ML Flow Experiment baru
 mlflow.set_experiment("Random Forest Model for Water Potability")
 
-data = pd.read_csv("water_potability_preprocessing")
+data = pd.read_csv("water_potability_preprocessing.csv")
 
 # Fungsi split data
 def split_data(df, target='Potability', test_size=0.25, random_state=42):
