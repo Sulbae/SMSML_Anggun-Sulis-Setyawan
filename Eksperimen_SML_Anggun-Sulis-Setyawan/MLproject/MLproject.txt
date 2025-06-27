@@ -1,11 +1,17 @@
-name: workflow-ci-mlflow
+name: workflow-wp-preprocessing-mlflow
 
 conda_env: conda.yaml
 
 entry_points:
     main:
-        parameters:
-            n_estimators: {type: int, default: 100}
-            max_depth: {type: int, default: 5}
+        parameters: 
             dataset : {type: string, default: "water_potability_preprocessing.csv"}
-        command: "python modelling.py {n_estimators} {max_depth} {dataset}"
+            target_column: {type: str, default: "Potability"}
+            impute_method: {type: str, default: "median"}
+            save_path: {type: str, default: "preprocessor.joblib"}
+        command: >
+        python automate_Anggun-Sulis-Setyawan.py 
+            --dataset {dataset}
+            --target_column {target_column}
+            --impute_method {impute_method}
+            --save_path {save_path}

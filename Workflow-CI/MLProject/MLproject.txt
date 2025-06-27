@@ -1,4 +1,4 @@
-name: workflow-ci-mlflow
+name: workflow-wp-mlflow
 
 conda_env: conda.yaml
 
@@ -8,4 +8,8 @@ entry_points:
             n_estimators: {type: int, default: 100}
             max_depth: {type: int, default: 5}
             dataset : {type: string, default: "water_potability_preprocessing.csv"}
-        command: "python modelling.py {n_estimators} {max_depth} {dataset}"
+        command: >
+            python modelling.py 
+                --n_estimators {n_estimators}
+                --max_depth {max_depth}
+                --dataset {dataset}
