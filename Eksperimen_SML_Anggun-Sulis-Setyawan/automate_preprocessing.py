@@ -10,42 +10,46 @@ import os
 
 # Konfigurasi MLflow
 mlflow.set_tracking_uri("http://127.0.0.1:5000")
+mlflow.set_experiment("Water Potability Preprocessing")
 
 # Fungsi preprocess data
-def preprocess_data(data, target_column, impute_method, save_path):
-    # Pemisahan Fitur dan Target
-    X = data.drop(columns=[target_column])
-    y = data[target_column]
-    
-    # Pembagian Data Latih
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, 
-        test_size=0.25, 
-        stratify=y, 
-        random_state=42
-    )
+def preprocess_data(data, impute_method, save_path, output_path):
+    import logging
+    logging.basicConfig(level=logging.INFO)
 
-    # Pipeline imputasi (penanganan missing values)
+    # Cek kondisi data
+    if not data.isnull().any().any():
+        logging.warning("Dataset tidak mengandung nilai NaN atau missing values.")
+
+        # Langsung simpan data ke output_path
+        data.to_csv(output_path, index=False)
+
+        return data, output_path
+
+    # Pipeline imputasi (penanganan missing values --jika ada)
     cleaning = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy=impute_method))
     ])
 
     # Fit pipeline untuk memproses data
-    X_train = cleaning.fit_transform(X_train)
-    X_test = cleaning.transform(X_test)
+    data_clean = cleaning.fit_transform(data)
 
     # Simpan pipeline
     dump(cleaning, save_path) # save path untuk menyimpan preprocessor
 
-    return X_train, X_test, y_train, y_test
+    # Simpan data hasil preprocessing
+    cleaned_data = pd.DataFrame(data_clean, columns=data.columns)
+    cleaned_data.to_csv(output_path, index=False)
+
+    return cleaned_data, output_path
 
 # Script
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=str, default="water_potability_raw.csv")
-    parser.add_argument("--target_column", type=str, default='Potability')
     parser.add_argument("--impute_method", type=str, default="median")
     parser.add_argument("--save_path", type=str, default="preprocessing/preprocessor.joblib")
+    parser.add_argument("--output_path", type=str, default="preprocessing/water_potability_preprocessing.csv")
     args = parser.parse_args()
 
     # Validasi dataset
@@ -59,19 +63,19 @@ if __name__ == "__main__":
 
     # Start MLflow run
     with mlflow.start_run():
-        X_train, X_test, y_train, y_test = preprocess_data(
+        cleaned_data, cleaned_data_path = preprocess_data(
             data,
-            args.target_column,
             args.impute_method,
-            args.save_path
+            args.save_path,
+            args.output_path
         )
     
         # Log parameter
         mlflow.log_param("dataset_version", dataset_version)
         mlflow.log_param("dataset_path", dataset_path)
-        mlflow.log_param("target_column", args.target_column)
         mlflow.log_param("impute_method", args.impute_method)
 
         # Log preprocessor
-        mlflow.log_artifact(args.save_path, artifact_path="preprocessor")
-        mlflow.log_artifact(dataset_path, artifact_path="dataset")
+        if os.path.exists(args.save_path):
+            mlflow.log_artifact(args.save_path, artifact_path="preprocessor")
+        mlflow.log_artifact(cleaned_data_path, artifact_path="cleaned_data")
