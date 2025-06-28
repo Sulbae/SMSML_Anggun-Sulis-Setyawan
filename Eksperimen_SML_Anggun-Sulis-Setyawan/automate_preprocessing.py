@@ -8,6 +8,9 @@ from sklearn.model_selection import train_test_split
 import argparse
 import os
 
+# Konfigurasi MLflow
+mlflow.set_tracking_uri("http://127.0.0.1:5000")
+
 # Fungsi preprocess data
 def preprocess_data(data, target_column, impute_method, save_path):
     # Pemisahan Fitur dan Target
@@ -39,10 +42,10 @@ def preprocess_data(data, target_column, impute_method, save_path):
 # Script
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", type=str, required=True)
-    parser.add_argument("--target_column", type=str, required=True)
+    parser.add_argument("--dataset", type=str, default="water_potability_raw.csv")
+    parser.add_argument("--target_column", type=str, default='Potability')
     parser.add_argument("--impute_method", type=str, default="median")
-    parser.add_argument("--save_path", type=str, default="preprocessor.joblib")
+    parser.add_argument("--save_path", type=str, default="preprocessing/preprocessor.joblib")
     args = parser.parse_args()
 
     # Validasi dataset

@@ -9,7 +9,7 @@ on:
       - main
 
 env:
-  DATASET_PATH: "MLproject/water_potability_preprocessing.csv"
+  DATASET_PATH: "MLproject/water_potability_raw.csv"
   TARGET_COLUMN: "Potability"
   IMPUTE_METHOD: "median"
   SAVE_PATH: "preprocessor.joblib"
@@ -43,7 +43,7 @@ jobs:
       # Run mlflow preprocessing step
       - name: Run mlflow preprocessing
         run: |
-          mlflow run MLproject \
+          mlflow run . \
             --entry-point preprocess \
             --env-manager=local \
             -p dataset=$DATASET_PATH \
