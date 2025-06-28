@@ -76,6 +76,7 @@ if __name__ == "__main__":
         mlflow.log_param("impute_method", args.impute_method)
 
         # Log preprocessor
+        mlflow.log_artifact(args.dataset, artifact_path="raw_data")
         if os.path.exists(args.save_path):
             mlflow.log_artifact(args.save_path, artifact_path="preprocessor")
         mlflow.log_artifact(cleaned_data_path, artifact_path="cleaned_data")

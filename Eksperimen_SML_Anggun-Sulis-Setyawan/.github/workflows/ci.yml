@@ -9,10 +9,10 @@ on:
       - main
 
 env:
-  DATASET_PATH: "MLproject/water_potability_raw.csv"
-  TARGET_COLUMN: "Potability"
+  DATASET_PATH: "water_potability_raw.csv"
   IMPUTE_METHOD: "median"
   SAVE_PATH: "preprocessor.joblib"
+  OUTPUT_PATH: "preprocessing/water_potability_preprocessing.csv"
 
 jobs:
   preprocess:
@@ -32,7 +32,7 @@ jobs:
       - name: Show dataset path
         run: |
           echo "Dataset path: $DATASET_PATH"
-          ls -lah MLproject/
+          ls -lah .
       
       # Install mlflow
       - name: Install dependencies
@@ -47,15 +47,15 @@ jobs:
             --entry-point preprocess \
             --env-manager=local \
             -p dataset=$DATASET_PATH \
-            -p target_column=$TARGET_COLUMN \
             -p impute_method=$IMPUTE_METHOD \
-            -p save_path=$SAVE_PATH
+            -p save_path=$SAVE_PATH \
+            -p output_path=$OUTPUT_PATH
 
       # Save models to Github Repository
       - name: Save mlruns to repository
         run: |
           git config --global user.name ${{ secrets.username }}
           git config --global user.email ${{ secrets.email }}
-          git add $SAVE_PATH
-          git commit -m "Add preprocessor from CI run"
+          git add $SAVE_PATH $OUTPUT_PATH
+          git commit -m "Add preprocessor and cleaned data from CI run"
           git push origin main

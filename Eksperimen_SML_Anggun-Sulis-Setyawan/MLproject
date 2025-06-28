@@ -5,13 +5,13 @@ conda_env: conda.yaml
 entry_points:
     preprocess:
         parameters: 
-            dataset : {type: str, default: "water_potability_raw.csv"}
-            target_column: {type: str, default: "Potability"}
+            dataset: {type: str, default: "water_potability_raw.csv"}
             impute_method: {type: str, default: "median"}
             save_path: {type: str, default: "preprocessing/preprocessor.joblib"}
-        command: >
-            python automate_preprocessing.py 
-                --dataset {dataset}
-                --target_column {target_column}
-                --impute_method {impute_method}
-                --save_path {save_path}
+            output_path: {type: str, default: "preprocessing/water_potability_preprocessing.csv"}
+    command: >
+      python automate_preprocessing.py
+        --dataset {dataset}
+        --impute_method {impute_method}
+        --save_path {save_path}
+        --output_path {output_path}
