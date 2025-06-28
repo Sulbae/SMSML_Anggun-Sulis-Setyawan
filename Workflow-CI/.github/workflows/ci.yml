@@ -9,7 +9,7 @@ on:
       - main
 
 env:
-  CSV_URL: "MLproject/water_potability_preprocessing.csv"
+  CSV_URL: "MLProject-folder/water_potability_preprocessing.csv"
 
 jobs:
   build:
@@ -39,7 +39,7 @@ jobs:
       # Run as a mlflow project
       - name: Run mlflow project
         run: |
-          mlflow run MLProject (folder) \
+          mlflow run MLProject-folder \
             --entry_point modelling \
             --env-manager=local \
             -p n_estimators=100 \
