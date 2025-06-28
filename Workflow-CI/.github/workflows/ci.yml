@@ -19,13 +19,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Setup Python 3.12.11
+      # Setup Python
       - name: Set up Python 3.12.11
         uses: actions/setup-python@v4
         with:
           python-version: "3.12.11"
       
-      # Check Env Variables
+      # Check Env
       - name: Check Env
         run: |
           echo $CSV_URL
@@ -39,11 +39,12 @@ jobs:
       # Run as a mlflow project
       - name: Run mlflow project
         run: |
-          mlflow run .\ 
+          mlflow run MLproject \ 
+            --entry_points modelling \
+            --env-manager=local \
             -p n_estimators=100 \
             -p max_depth=5 \
             -p dataset=${{ env.CSV_URL }}
-            --env-manager=local
 
       # Save models to Github Repository
       - name: Save mlruns to Repository

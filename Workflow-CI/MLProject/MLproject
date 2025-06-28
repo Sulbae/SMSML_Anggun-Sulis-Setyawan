@@ -3,7 +3,7 @@ name: workflow-water-potability-modelling
 conda_env: conda.yaml
 
 entry_points:
-    main:
+    modelling:
         parameters:
             n_estimators: {type: int, default: 100}
             max_depth: {type: int, default: 5}
