@@ -11,7 +11,7 @@ on:
 env:
   DATASET_PATH: "MLproject/water_potability_preprocessing.csv"
   TARGET_COLUMN: "Potability"
-  IMPUTE_METHODE: "median"
+  IMPUTE_METHOD: "median"
   SAVE_PATH: "preprocessor.joblib"
 
 jobs:
@@ -23,12 +23,12 @@ jobs:
         uses: actions/checkout@v3
 
       # Setup Python
-      - name: Set up Python 3.12.11
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.12.11"
       
-      # Check file dan env
+      # Check dataset info
       - name: Show dataset path
         run: |
           echo "Dataset path: $DATASET_PATH"
@@ -43,12 +43,12 @@ jobs:
       # Run mlflow preprocessing step
       - name: Run mlflow preprocessing
         run: |
-          mlflow run . \
-            --entry-point main\
+          mlflow run MLproject \
+            --entry-point preprocess \
             --env-manager=local \
             -p dataset=$DATASET_PATH \
             -p target_column=$TARGET_COLUMN \
-            -p impute_method=$IMPUTE_METHODE \
+            -p impute_method=$IMPUTE_METHOD \
             -p save_path=$SAVE_PATH
 
       # Save models to Github Repository
