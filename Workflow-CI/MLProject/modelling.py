@@ -9,7 +9,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
 # Fungsi split data
-def split_data(data, target='Potability', test_size=0.25, random_state=42):
+def split_data(data, test_size=0.25, random_state=42):
     X = data.drop(columns='Potability', axis=1)
     y = data['Potability']
     return train_test_split(X, y, test_size=test_size, stratify=y, random_state=random_state)
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     data = pd.read_csv(args.dataset)
 
     # Preprocessing
-    X_train, X_test, y_train, y_test = split_data(data, target='Potability', test_size=0.25, random_state=42)
+    X_train, X_test, y_train, y_test = split_data(data, test_size=0.25, random_state=42)
 
     # Menyimpan snippet atau sample input
     input_example = X_train.iloc[0:5]
@@ -49,7 +49,7 @@ if __name__ == "__main__":
         model.fit(X_train, y_train)
     
         y_pred = model.predict(X_test)
-        acc = accuracy_score(y_test, y_pred)
+        accuracy = accuracy_score(y_test, y_pred)
         
         # Log model
         mlflow.sklearn.log_model(
@@ -63,4 +63,4 @@ if __name__ == "__main__":
         mlflow.log_param("dataset_path", dataset_path)
         mlflow.log_param("n_estimators", args.n_estimators)
         mlflow.log_param("max_depth", args.max_depth)
-        mlflow.log_metric("accuracy", acc)
+        mlflow.log_metric("accuracy", accuracy)

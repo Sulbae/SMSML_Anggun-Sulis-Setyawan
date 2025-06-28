@@ -23,12 +23,12 @@ dataset_version = "v1.0"
 data = pd.read_csv(dataset_file)
 
 # Fungsi split data
-def split_data(data, target='Potability', test_size=0.25, random_state=42):
+def split_data(data, test_size=0.25, random_state=42):
     X = data.drop(columns='Potability', axis=1)
     y = data['Potability']
     return train_test_split(X, y, test_size=test_size, stratify=y, random_state=random_state)
 
-X_train, X_test, y_train, y_test = split_data(data, target='Potability', test_size=0.25, random_state=42)
+X_train, X_test, y_train, y_test = split_data(data, test_size=0.25, random_state=42)
 
 # Menyimpan snippet atau sample input
 input_example = X_train.iloc[0:5]
