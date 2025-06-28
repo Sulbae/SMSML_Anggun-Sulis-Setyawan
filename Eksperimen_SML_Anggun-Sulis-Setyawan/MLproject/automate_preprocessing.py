@@ -71,3 +71,4 @@ if __name__ == "__main__":
 
         # Log preprocessor
         mlflow.log_artifact(args.save_path, artifact_path="preprocessor")
+        mlflow.log_artifact(dataset_path, artifact_path="dataset")
