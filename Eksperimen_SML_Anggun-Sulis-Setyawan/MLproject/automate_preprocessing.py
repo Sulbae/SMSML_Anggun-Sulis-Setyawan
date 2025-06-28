@@ -6,6 +6,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
 import argparse
+import os
 
 # Fungsi preprocess data
 def preprocess_data(data, target_column, impute_method, save_path):
@@ -44,8 +45,14 @@ if __name__ == "__main__":
     parser.add_argument("--save_path", type=str, default="preprocessor.joblib")
     args = parser.parse_args()
 
+    # Validasi dataset
+    if not os.path.isfile(args.dataset):
+        raise FileNotFoundError(f"Dataset tidak ditemukan: {args.dataset}")
+
     # Memuat data
     data = pd.read_csv(args.dataset)
+    dataset_path = os.path.abspath(args.dataset)
+    dataset_version = "v1.0"
 
     # Start MLflow run
     with mlflow.start_run():
@@ -61,3 +68,6 @@ if __name__ == "__main__":
         mlflow.log_param("dataset_path", dataset_path)
         mlflow.log_param("target_column", args.target_column)
         mlflow.log_param("impute_method", args.impute_method)
+
+        # Log preprocessor
+        mlflow.log_artifact(args.save_path, artifact_path="preprocessor")
