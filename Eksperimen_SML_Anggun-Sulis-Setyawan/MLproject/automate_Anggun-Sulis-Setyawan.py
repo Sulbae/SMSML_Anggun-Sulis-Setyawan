@@ -57,5 +57,7 @@ if __name__ == "__main__":
         )
     
         # Log parameter
+        mlflow.log_param("dataset_version", dataset_version)
+        mlflow.log_param("dataset_path", dataset_path)
         mlflow.log_param("target_column", args.target_column)
         mlflow.log_param("impute_method", args.impute_method)

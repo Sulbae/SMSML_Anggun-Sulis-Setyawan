@@ -37,7 +37,11 @@ if __name__ == "__main__":
     X_train, X_test, y_train, y_test = split_data(data, target='Potability', test_size=0.25, random_state=42)
 
     # Menyimpan snippet atau sample input
-    input_example = X_train[0:5]
+    input_example = X_train.iloc[0:5]
+
+    # Metadata dataset
+    dataset_path = os.path.abspath(args.dataset)
+    dataset_version = "v1.0"
 
     # Start MLflow run 
     with mlflow.start_run():
@@ -55,6 +59,8 @@ if __name__ == "__main__":
         )
 
         # Log parameters dan metrics
+        mlflow.log_param("dataset_version", dataset_version)
+        mlflow.log_param("dataset_path", dataset_path)
         mlflow.log_param("n_estimators", args.n_estimators)
         mlflow.log_param("max_depth", args.max_depth)
         mlflow.log_metric("accuracy", acc)
