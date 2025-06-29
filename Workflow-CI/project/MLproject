@@ -2,12 +2,12 @@ name: workflow-water-potability-modelling
 
 conda_env: conda.yaml
 
-entry_points:
+entry_point:
     modelling:
         parameters:
             n_estimators: {type: int, default: 100}
             max_depth: {type: int, default: 5}
-            dataset : {type: string, default: "water_potability_preprocessing.csv"}
+            dataset : {type: string, default: "project/water_potability_preprocessing.csv"}
         command: >
             python modelling.py 
                 --n_estimators {n_estimators}
