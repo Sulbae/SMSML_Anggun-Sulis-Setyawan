@@ -40,7 +40,7 @@ jobs:
       - name: Run mlflow project
         run: |
           mlflow run project \
-            --entry_point modelling \
+            --entry-point modelling \
             --env-manager=local \
             -p n_estimators=100 \
             -p max_depth=5 \

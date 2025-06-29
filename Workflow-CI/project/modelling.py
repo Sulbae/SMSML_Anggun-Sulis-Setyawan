@@ -8,6 +8,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
+# Konfigurasi MLflow
+mlflow.set_tracking_uri("http://127.0.0.1:5000")
+
 # Fungsi split data
 def split_data(data, test_size=0.25, random_state=42):
     X = data.drop(columns='Potability', axis=1)
@@ -23,7 +26,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--n_estimators", type=int, default=100)
     parser.add_argument("--max_depth", type=int, default=5)
-    parser.add_argument("--dataset", type=str, default="project/water_potability_preprocessing.csv")
+    parser.add_argument("--dataset", type=str, default="water_potability_preprocessing.csv")
     args = parser.parse_args()
 
     # Validasi input
