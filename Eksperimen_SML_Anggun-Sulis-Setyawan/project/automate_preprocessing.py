@@ -46,7 +46,7 @@ def preprocess_data(data, impute_method, save_path, output_path):
 # Script
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", type=str, default="water_potability_raw.csv")
+    parser.add_argument("--dataset", type=str, default="project/water_potability_raw.csv")
     parser.add_argument("--impute_method", type=str, default="median")
     parser.add_argument("--save_path", type=str, default="preprocessing/preprocessor.joblib")
     parser.add_argument("--output_path", type=str, default="preprocessing/water_potability_preprocessing.csv")
