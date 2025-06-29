@@ -2,7 +2,7 @@ name: workflow-wp-preprocessing-mlflow
 
 conda_env: conda.yaml
 
-entry_point:
+entry_points:
     preprocess:
         parameters: 
             dataset: {type: str, default: "project/water_potability_raw.csv"}

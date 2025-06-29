@@ -2,7 +2,7 @@ name: workflow-water-potability-modelling
 
 conda_env: conda.yaml
 
-entry_point:
+entry_points:
     modelling:
         parameters:
             n_estimators: {type: int, default: 100}
