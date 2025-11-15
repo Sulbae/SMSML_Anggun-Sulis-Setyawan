@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split, ParameterGrid
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import random
 import mlflow
 import os
@@ -43,6 +43,8 @@ param_grid = {
 best_accuracy = 0
 best_params = None
 best_model = None
+best_precision = None
+best_recall = None
 
 # Modelling
 with mlflow.start_run(run_name="Grid Search Experiment"):
@@ -63,20 +65,28 @@ with mlflow.start_run(run_name="Grid Search Experiment"):
             
             # Accuracy
             accuracy = accuracy_score(y_test, y_pred)
+            precision = precision_score(y_test, y_pred)
+            recall = recall_score(y_test, y_pred)
             
             # Log parameters
             mlflow.log_params(params)
             mlflow.log_metric("accuracy", accuracy)
+            mlflow.log_metric("precision", precision)
+            mlflow.log_metric("recall", recall)
 
             # Track best model
             if accuracy > best_accuracy:
                 best_accuracy = accuracy
                 best_params = params
                 best_model = model
+                best_precision = precision
+                best_recall = recall
     
     # Log ke parent run
     mlflow.log_params({f"best_{k}": v for k, v in best_params.items()})
     mlflow.log_metrics("best_accuracy", best_accuracy)
+    mlflow.log_metric("best_precision", best_precision)
+    mlflow.log_metric("best_recall", best_recall)
     
     # Simpan model ke file lokal
     best_model_path = "best_rf_model.joblib"
