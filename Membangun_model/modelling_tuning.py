@@ -88,6 +88,6 @@ with mlflow.start_run(run_name="Grid Search Experiment"):
     # Log model setelah selesai
     mlflow.sklearn.log_model(
         sk_model=best_model,
-        artifact_path="best_model"
+        artifact_path="best_model",
         input_example=input_example
     )
