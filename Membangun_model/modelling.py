@@ -7,42 +7,42 @@ import mlflow
 import os
 from joblib import dump
 
+# Konfigurasi
+DATASET_PATH = "water_potability_preprocessing.csv"
+N_ESTIMATOR = 100
+MAX_DEPTH = 5
+
 # Konfigurasi MLFLow
 mlflow.set_tracking_uri("http://127.0.0.1:5000")
 mlflow.set_experiment("Water Potability Modelling with Random Forest")
 
-# Set 2 seed untuk reproducibility
-random.seed(42)
-np.random.seed(42)
+# Aktifkan autolog
+mlflow.autolog(log_models=False, input_example=True)
 
 # Load dataset
-dataset_file = "water_potability_preprocessing.csv"
-dataset_path = os.path.abspath(dataset_file)
-dataset_version = "v1.0"
-
-data = pd.read_csv(dataset_file)
+data = pd.read_csv(DATASET_PATH)
 
 # Split data
-X = data.drop(columns=['Potability'], axis=1)
-y = data['Potability']
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(
+    data.drop(columns=['Potability'], axis=1), 
+    data['Potability'], 
+    test_size=0.25, 
+    random_state=42)
 
 # Menyimpan snippet atau input sample
-input_example = X_train.iloc[:5]
-
-# Parameter model
-n_estimators = 100
-max_depth = 5
+input_example = X_train.iloc[0:5]
 
 # Modelling
 with mlflow.start_run():
-    mlflow.sklearn.autolog(log_input_examples=True)
+    
+    # Log parameters
+    mlflow.log_param("n_estimator", N_ESTIMATOR)
+    mlflow.log_param("max_depth", MAX_DEPTH)
 
     # Train model
     model = RandomForestClassifier(
-        n_estimators=n_estimators,
-        max_depth=max_depth
+        n_estimators=N_ESTIMATOR,
+        max_depth=MAX_DEPTH
     )
     model.fit(X_train, y_train)
     
@@ -52,7 +52,7 @@ with mlflow.start_run():
     print(f"Accuracy: {accuracy:.4f}")
 
     # Simpan model ke file lokal
-    model_path = "rf_model_v1.0.joblib"
+    model_path = "rf_model_v1.joblib"
     dump(model, model_path)
 
     # Log file model sebagai artefak ke MLflow
