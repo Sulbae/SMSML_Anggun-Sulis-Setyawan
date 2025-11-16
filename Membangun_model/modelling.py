@@ -17,7 +17,7 @@ mlflow.set_tracking_uri("http://127.0.0.1:5000")
 mlflow.set_experiment("Water Potability Modelling with Random Forest")
 
 # Aktifkan autolog
-mlflow.autolog(log_models=False, input_example=True)
+mlflow.autolog()
 
 # Load dataset
 data = pd.read_csv(DATASET_PATH)
