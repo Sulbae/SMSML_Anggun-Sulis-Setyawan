@@ -6,32 +6,29 @@ import pandas as pd
 import requests
 import json
 
-def preprocess_to_predict(input=input):
-    preprocess_pipeline = joblib.load("preprocessing_pipeline.joblib")
 
-    def data_preprocessing(input):
-        data = input.copy()    
+preprocess_pipeline = joblib.load("preprocessing_pipeline.joblib")
 
-        columns = [
-            "pH", "Hardness, Solids", 
-            "Chloramines", "Sulfate", "Conductivity", 
-            "Organic_carbon", "Trihalomethanes", "Turbidity"
-        ]
+def data_preprocessing(input):
+    data = input.copy()    
 
-        df = pd.DataFrame([data], columns=columns)
+    columns = [
+        "pH", "Hardness, Solids", 
+        "Chloramines", "Sulfate", "Conductivity", 
+        "Organic_carbon", "Trihalomethanes", "Turbidity"
+    ]
 
-        df = preprocess_pipeline.transform(data)
+    df = pd.DataFrame([data], columns=columns)
 
-        return df
+    df = preprocess_pipeline.transform(data)
 
-    def prediction(data):
+    return df
 
-        url = "http://127.0.0.1:5002/invocations"
-        headers = {"Content-Type": "application/json"}
-        response = requests.post(url, data=data, headers=headers)
-        response = response.json().get("predictions")
-        
-        return response
+def prediction(data):
 
-if __name__ == "__main__":
-    preprocess_to_predict(input=input)
+    url = "http://127.0.0.1:5002/invocations"
+    headers = {"Content-Type": "application/json"}
+    response = requests.post(url, data=data, headers=headers)
+    response = response.json().get("predictions")
+    
+    return response
