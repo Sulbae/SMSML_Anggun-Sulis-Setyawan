@@ -11,9 +11,16 @@ def preprocess_to_predict(input=input):
 
     def data_preprocessing(input):
         data = input.copy()    
-        df = pd.DataFrame()
 
-        preprocessed_data = preprocess_pipeline.transform(data)
+        columns = [
+            "pH", "Hardness, Solids", 
+            "Chloramines", "Sulfate", "Conductivity", 
+            "Organic_carbon", "Trihalomethanes", "Turbidity"
+        ]
+
+        df = pd.DataFrame([data], columns=columns)
+
+        df = preprocess_pipeline.transform(data)
 
         return df
 
