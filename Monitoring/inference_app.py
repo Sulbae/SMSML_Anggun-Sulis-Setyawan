@@ -40,8 +40,16 @@ if st.button("Simpan & Tampilkan Data"):
     st.write("### Data setelah diolah:")
     st.dataframe(new_data)
 
-    result = prediction(new_data)
+    json_output = {
+        "dataframe_split": {
+            "columns": new_data.columns.tolist(),
+            "data": new_data.values.tolist()
+        }
+    }
 
+    data_testing = json.dumps(json_output)
+    result = prediction(data_testing)
+    
     # Tampilkan hasil prediksi
     st.write("### Hasil Prediksi")
     st.write(result)
