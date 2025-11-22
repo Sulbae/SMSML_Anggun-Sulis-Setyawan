@@ -16,7 +16,7 @@ def data_preprocessing(input):
         "pH", "Hardness, Solids", 
         "Chloramines", "Sulfate", "Conductivity", 
         "Organic_carbon", "Trihalomethanes", "Turbidity"
-    ]
+]
 
     df = pd.DataFrame([data], columns=columns)
 
