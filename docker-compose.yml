@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  # Layanan Streamlit (Serving app)
+  streamlit:
+    container_name: streamlit_ml_app
+    # Path Build
+    build:
+      context: ./Monitoring/inference
+      dockerfile: dockerfile
+    image: water-potability-app:latest
+    ports:
+      - "8501:8501" # Streamlit UI
+      - "8000:8000" # Prometheus Port
+  
+  # Layanan Prometheus (Pengumpul metrik)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus_server
+    ports:
+      - "9090:9090"
+    volumes:
+      # Path volume
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    depends_on:
+      - streamlit
+
+    # Layanan Grafana (Visualisasi metrik)
+    grafana:
+      image: grafana/grafana:latest
+      container_name: grafana_dashboard
+      ports:
+        - "3000:3000"
+      environment:
+        - GF_SECURITY_ADMIN_USER=admin
+        - GF_SECURITY_ADMIN_PASSWORD=admin
+      volumes:
+        - grafana-storage:/var/lib/grafana
+      depends_on:
+        - prometheus
+    
+    volumes:
+      grafana-storage:
