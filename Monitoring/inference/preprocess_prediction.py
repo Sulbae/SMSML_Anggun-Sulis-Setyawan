@@ -6,20 +6,17 @@ import pandas as pd
 import requests
 import json
 
+try:
+    preprocess_pipeline = joblib.load("preprocessing_pipeline.joblib")
+    print("Preprocessing pipeline berhasil dimuat.")
+except FileNotFoundError as e:
+    print(f"ERROR: File pipeline tidak ditemukan: {e}")
+    preprocess_pipeline = None
 
-preprocess_pipeline = joblib.load("preprocessing_pipeline.joblib")
+def data_preprocessing(data_input: pd.DataFrame) -> np.ndarray:
+    if preprocess_pipeline is None:
+        raise RuntimeError("Preprocessing pipeline gagal dimuat.")
 
-def data_preprocessing(input):
-    data = input.copy()    
+    preprocessed_array = preprocess_pipeline.transform(data_input)
 
-    columns = [
-        "pH", "Hardness, Solids", 
-        "Chloramines", "Sulfate", "Conductivity", 
-        "Organic_carbon", "Trihalomethanes", "Turbidity"
-]
-
-    df = pd.DataFrame([data], columns=columns)
-
-    df = preprocess_pipeline.transform(data)
-
-    return df
+    return preprocessed_array
