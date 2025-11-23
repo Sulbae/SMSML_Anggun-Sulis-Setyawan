@@ -1,7 +1,17 @@
-__pycache__
-.git
+# Ignore Virtual Environment
 .venv
 venv
+env
+*.bak
+
+# Ignore cache files
+__pycache__
 *.pyc
+*.egg-info/
+.pytest_cache/
+
+# Ignore project files not needed for deployment
 *.log
+.git
+.gitignore
 .DS_Store
