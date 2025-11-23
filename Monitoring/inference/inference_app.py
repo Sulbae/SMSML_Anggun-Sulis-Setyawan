@@ -10,59 +10,59 @@ import psutil
 MODEL_NAME = "water_potability"
 MODEL_VERSION = "v1.0.0"
 
-# Tracking Jumlah Request
-REQUEST_COUNT = Counter(
-    "streamlit_request_count",
-    "Jumlah request prediksi",
-    ["model_name", "status"]
-)
+@st.cache_resource
+def init_metrics():
+    metrics = {
+        # Tracking Jumlah Request
+        "REQUEST_COUNT": Counter("streamlit_request_count", "Jumlah request prediksi", ["model_name", "status"]),
+        # Tracking Waktu Response
+        "PREDICTION_TIME": Summary("streamlit_prediction_latency_seconds", "Waktu yang dibutuhkan untuk prediksi", ["model_name"]),
+        # Penggunaan Sistem: CPU dan RAM
+        "CPU_USAGE": Gauge('system_cpu_usage', 'CPU Usage Percentage'),
+        "RAM_USAGE": Gauge('system_ram_usage', 'RAM Usage Percentage'),
+        # Distribusi Output
+        "OUTPUT_POTABILITY_COUNT": Counter("model_output_count", "Hitung jumlah utput per kelas", ["prediction"])
+    }
 
-# Tracking Waktu Response 
-PREDICTION_TIME = Summary(
-    "streamlit_prediction_latency_seconds",
-    "Waktu yang dibutuhkan untuk prediksi",
-    ["model_name"]
-)
+    # Versi Model Aktif
+    MODEL_VERSION_GAUGE = Gauge("model_version", "Versi model saat ini", ["version"])
+    MODEL_VERSION_GAUGE.labels(version=MODEL_VERSION).set(1)
 
-# Penggunaan Sistem: CPU dan RAM
-CPU_USAGE = Gauge('system_cpu_usage', 'CPU Usage Percentage')
-RAM_USAGE = Gauge('system_ram_usage', 'RAM Usage Percentage')
+    try:
+        start_http_server(8000)
+        st.sidebar.success("Prometheus metrics aktif (serving) di port 8000")
+    except OSError:
+        st.sidebar.warning("Server Prometheus sudah berjalan.")
+    
+    return metrics
 
-# Versi Model Aktif
-MODEL_VERSION_GAUGE = Gauge("model_version", "Versi model saat ini", ["version"])
-MODEL_VERSION_GAUGE.labels(version=MODEL_VERSION).set(1)
+METRICS = init_metrics()
 
-# Distribusi Output
-OUTPUT_POTABILITY_COUNT = Counter(
-    "model_output_count",
-    "Hitung jumlah utput per kelas",
-    ["prediction"]
-)
+@st.cache_resource
+def load_model():
+    try:    
+        model = joblib.load("water_potability.pkl")
+        st.sidebar.success(f"Model {type(model).__name__} ({MODEL_VERSION}) sudah dimuat!")
+        return model
+    except Exception as e:
+        st.sidebar.error(f"Gagal memuat model: {e}. Pastikan file model ada.")
+        return None
 
 def update_system_metrics():
-    CPU_USAGE.set(psutil.cpu_percent(interval=None))
-    RAM_USAGE.set(psutil.virtual_memory().percent)
+    METRICS["CPU_USAGE"].set(psutil.cpu_percent(interval=None))
+    METRICS["RAM_USAGE"].set(psutil.virtual_memory().percent)
 
-try:
-    start_http_server(8000)
-    st.sidebar.success("Prometheus metrics aktif (serving) di port 8000")
-except OSError:
-    st.sidebar.warning("Server Prometheus sudah berjalan.")
+MODEL = load_model()
 
 # Streamlit UI
 st.title("Aplikasi Prediksi Kelayakan Air")
 st.markdown("Masukkan data setiap parameter untuk memprediksi **Water Potability (Kelayakan Minum Air)**!")
 
-# Load model
-@st.cache_resource
-def load_model():
-    model = joblib.load("water_potability.pkl")
-    return model
-
-model = load_model()
-
-if model is not None:
-    st.write(f"Model {type(model).__name__} ({MODEL_VERSION}) sudah siap!")
+# Cek model
+if MODEL is not None:
+    st.caption(f"Status: Model {MODEL_NAME} ({MODEL_VERSION}) siap.")
+else:
+    st.error("MODEL GAGAL DIMUAT. Periksa log Docker untuk memastikan file model tersedia.")
 
 # Input Data
 columns = [
@@ -83,7 +83,7 @@ trihalomethanes = st.number_input("Trihalomethanes", min_value=0.1, max_value=10
 turbidity = st.number_input("Turbidity", min_value=0.1, max_value=100)
 
 # Menyimpan data ke dalam DataFrame
-data = pd.DataFrame([[
+data_input = pd.DataFrame([[
     ph, hardness, solids, 
     chloramines, sulfate, conductivity, 
     organic_carbon, trihalomethanes, turbidity
@@ -94,19 +94,19 @@ if st.button("Prediksi Kelayakan Air", type="primary"):
     update_system_metrics()
 
     st.write("### Data yang dimasukkan:")
-    st.dataframe(data)
+    st.dataframe(data_input)
 
-    if model is None:
-        st.error("Maaf, tidak dapat melakukan prediksi karena model gagal dimuat.")
-        REQUEST_COUNT.labels(model_name=MODEL_NAME, status="error").inc()
+    start_time = time.time()
+
+    if MODEL is None:
         prediction_status = "error"
+        st.error("Maaf, tidak dapat melakukan prediksi karena model gagal dimuat.")
     else:
-        start_time = time.time()
         prediction_status = "success"
         
         try:
             # Preprocessing
-            new_data = data_preprocessing(data=data)
+            new_data = data_preprocessing(data=data_input)
             st.write("### Data setelah diolah:")
             st.dataframe(new_data)
 
@@ -123,7 +123,7 @@ if st.button("Prediksi Kelayakan Air", type="primary"):
             result = prediction(data_testing)
             
             # Metrik Distribusi Output
-            OUTPUT_POTABILITY_COUNT.labels(prediction=str(result)).inc()
+            METRICS["OUTPUT_POTABILITY_COUNT"].labels(prediction=str(result)).inc()
             
             # Tampilkan hasil prediksi
             st.success(f"Hasil Prediksi: {'Air Layak Minum.' if result == 1 else 'Air Tidak Layak Minum!'}")
@@ -139,8 +139,8 @@ if st.button("Prediksi Kelayakan Air", type="primary"):
             latency = end_time - start_time
 
             # Metrik jumlah requests
-            REQUEST_COUNT.labels(model_name=MODEL_NAME, status=prediction_status).inc()
+            METRICS["REQUEST_COUNT"].labels(model_name=MODEL_NAME, status=prediction_status).inc()
             # Metrik Latency
-            PREDICTION_TIME.labels(model_name=MODEL_NAME).observe(latency)
+            METRICS["PREDICTION_TIME"].labels(model_name=MODEL_NAME).observe(latency)
 
             st.caption(f"Waktu Proses: {latency:.4f} detik")
