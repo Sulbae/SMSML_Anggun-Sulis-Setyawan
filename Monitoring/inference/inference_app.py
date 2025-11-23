@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from preprocess_prediction import data_preprocessing, prediction
+from preprocess_prediction import data_preprocessing
 import json
 from prometheus_client import start_http_server, CollectorRegistry, Counter, Summary, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
 import time
@@ -112,17 +112,9 @@ if st.button("Prediksi Kelayakan Air", type="primary"):
             st.write("### Data setelah diolah:")
             st.dataframe(new_data)
 
-            json_output = {
-                "dataframe_split": {
-                    "columns": new_data.columns.tolist(),
-                    "data": new_data.values.tolist()
-                }
-            }
-
-            data_testing = json.dumps(json_output)
-
             # Prediksi
-            result = prediction(data_testing)
+            prediction_array = MODEL.predict(new_data)
+            result = int(prediction_array[0])
             
             # Metrik Distribusi Output
             METRICS["OUTPUT_POTABILITY_COUNT"].labels(prediction=str(result)).inc()
