@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from preprocess_prediction import data_preprocessing, prediction
 import json
-from prometheus_client import start_http_server, Counter, Summary, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
+from prometheus_client import start_http_server, CollectorRegistry, Counter, Summary, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
 import time
 import joblib
 import psutil
@@ -12,6 +12,8 @@ MODEL_VERSION = "v1.0.0"
 
 @st.cache_resource
 def init_metrics():
+    registry = CollectorRegistry()
+
     metrics = {
         # Tracking Jumlah Request
         "REQUEST_COUNT": Counter("streamlit_request_count", "Jumlah request prediksi", ["model_name", "status"]),
@@ -29,7 +31,7 @@ def init_metrics():
     MODEL_VERSION_GAUGE.labels(version=MODEL_VERSION).set(1)
 
     try:
-        start_http_server(8000)
+        start_http_server(8000, registry=registry)
         st.sidebar.success("Prometheus metrics aktif (serving) di port 8000")
     except OSError:
         st.sidebar.warning("Server Prometheus sudah berjalan.")
