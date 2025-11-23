@@ -72,15 +72,15 @@ columns = [
 ]
 
 ## Input data numerik
-ph = st.number_input("pH", min_value=0.1, max_value=14)
-hardness = st.number_input("Hardness", min_value=0.1, max_value=1000)
-solids = st.number_input("Solids", min_value=0.1, max_value=100000)
-chloramines = st.number_input("Chloramines", min_value=0.1, max_value=100)
-sulfate = st.number_input("Sulfate", min_value=0.1, max_value=1000)
-conductivity = st.number_input("Conductivity", min_value=0.1, max_value=1000)
-organic_carbon = st.number_input("Organic_carbon", min_value=0.1, max_value=1000)
-trihalomethanes = st.number_input("Trihalomethanes", min_value=0.1, max_value=1000)
-turbidity = st.number_input("Turbidity", min_value=0.1, max_value=100)
+ph = st.number_input("pH", min_value=0.1, max_value=14.0, value=7.0)
+hardness = st.number_input("Hardness", min_value=0.1, max_value=1000.0, value=200.0)
+solids = st.number_input("Solids", min_value=0.1, max_value=100000.0, value=20000.0)
+chloramines = st.number_input("Chloramines", min_value=0.1, max_value=100.0, value=7.0)
+sulfate = st.number_input("Sulfate", min_value=0.1, max_value=1000.0, value=300.0)
+conductivity = st.number_input("Conductivity", min_value=0.1, max_value=1000.0, value=400.0)
+organic_carbon = st.number_input("Organic_carbon", min_value=0.1, max_value=1000.0, value=15.0)
+trihalomethanes = st.number_input("Trihalomethanes", min_value=0.1, max_value=1000.0, value=80.0)
+turbidity = st.number_input("Turbidity", min_value=0.1, max_value=100.0, value=4.0)
 
 # Menyimpan data ke dalam DataFrame
 data_input = pd.DataFrame([[
