@@ -1,16 +1,19 @@
 import streamlit as st
 import pandas as pd
-from Monitoring.inference.preprocess_prediction import data_preprocessing, prediction
+from preprocess_prediction import data_preprocessing, prediction
 import json
-from prometheus_client import start_http_server, Counter, Summary 
+from prometheus_client import start_http_server, Counter, Summary, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
 import time
 import joblib
+import psutil
+
+MODEL_NAME = "water_potability"
 
 # Set up prometheus
 REQUEST_COUNT = Counter(
     "streamlit_request_count",
     "Jumlah request prediksi",
-    ["model_name"]
+    ["model_name", "status"]
 )
 
 PREDICTION_TIME = Summary(
@@ -19,7 +22,15 @@ PREDICTION_TIME = Summary(
     ["model_name"]
 )
 
-MODEL_NAME = "water_potability"
+REQUEST_LATENCY = Histogram('http_request_duration_seconds', 'HTTP requests Latency')
+
+CPU_USAGE = Gauge('system_cpu_usage', 'CPU Usage Percentage')
+RAM_USAGE = Gauge('system_ram_usage', 'RAM Usage Percentage')
+
+def update_system_metrics():
+    CPU_USAGE.set(psutil.cpu_percent(interval=None))
+    RAM_USAGE.set(psutil.virtual_memory().percent)
+
 try:
     start_http_server(8000)
     st.sidebar.success("Prometheus metrics aktif (serving) di port 8000")
@@ -39,11 +50,11 @@ def load_model():
 model = load_model()
 
 if model is not None:
-    st.write(f"Model {model} sudah siap!")
+    st.write(f"Model {type(model).__name__} sudah siap!")
 
 # Input Data
 columns = [
-        "pH", "Hardness, Solids", 
+        "pH", "Hardness", "Solids", 
         "Chloramines", "Sulfate", "Conductivity", 
         "Organic_carbon", "Trihalomethanes", "Turbidity"
 ]
@@ -68,14 +79,18 @@ data = pd.DataFrame([[
 
 # Tombol untuk menampilkan data
 if st.button("Prediksi Kelayakan Air", type="primary"):
+    update_system_metrics()
+
     st.write("### Data yang dimasukkan:")
     st.dataframe(data)
 
     if model is None:
         st.error("Maaf, tidak dapat melakukan prediksi karena model gagal dimuat.")
+        prediction_status = "error"
     else:
         start_time = time.time()
-        prediction_status = "Success"
+        prediction_status = "success"
+        
         try:
             # Preprocessing
             new_data = data_preprocessing(data=data)
