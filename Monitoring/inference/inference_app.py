@@ -8,24 +8,36 @@ import joblib
 import psutil
 
 MODEL_NAME = "water_potability"
+MODEL_VERSION = "v1.0.0"
 
-# Set up prometheus
+# Tracking Jumlah Request
 REQUEST_COUNT = Counter(
     "streamlit_request_count",
     "Jumlah request prediksi",
     ["model_name", "status"]
 )
 
+# Tracking Waktu Response 
 PREDICTION_TIME = Summary(
     "streamlit_prediction_latency_seconds",
     "Waktu yang dibutuhkan untuk prediksi",
     ["model_name"]
 )
 
-REQUEST_LATENCY = Histogram('http_request_duration_seconds', 'HTTP requests Latency')
-
+# Penggunaan Sistem: CPU dan RAM
 CPU_USAGE = Gauge('system_cpu_usage', 'CPU Usage Percentage')
 RAM_USAGE = Gauge('system_ram_usage', 'RAM Usage Percentage')
+
+# Versi Model Aktif
+MODEL_VERSION_GAUGE = Gauge("model_version", "Versi model saat ini", ["version"])
+MODEL_VERSION_GAUGE.labels(version=MODEL_VERSION).set(1)
+
+# Distribusi Output
+OUTPUT_POTABILITY_COUNT = Counter(
+    "model_output_count",
+    "Hitung jumlah utput per kelas",
+    ["prediction"]
+)
 
 def update_system_metrics():
     CPU_USAGE.set(psutil.cpu_percent(interval=None))
@@ -38,7 +50,7 @@ except OSError:
     st.sidebar.warning("Server Prometheus sudah berjalan.")
 
 # Streamlit UI
-st.title("Form Input Data Kualitas Air")
+st.title("Aplikasi Prediksi Kelayakan Air")
 st.markdown("Masukkan data setiap parameter untuk memprediksi **Water Potability (Kelayakan Minum Air)**!")
 
 # Load model
@@ -50,7 +62,7 @@ def load_model():
 model = load_model()
 
 if model is not None:
-    st.write(f"Model {type(model).__name__} sudah siap!")
+    st.write(f"Model {type(model).__name__} ({MODEL_VERSION}) sudah siap!")
 
 # Input Data
 columns = [
@@ -86,6 +98,7 @@ if st.button("Prediksi Kelayakan Air", type="primary"):
 
     if model is None:
         st.error("Maaf, tidak dapat melakukan prediksi karena model gagal dimuat.")
+        REQUEST_COUNT.labels(model_name=MODEL_NAME, status="error").inc()
         prediction_status = "error"
     else:
         start_time = time.time()
@@ -108,14 +121,12 @@ if st.button("Prediksi Kelayakan Air", type="primary"):
 
             # Prediksi
             result = prediction(data_testing)
-
+            
+            # Metrik Distribusi Output
+            OUTPUT_POTABILITY_COUNT.labels(prediction=str(result)).inc()
+            
             # Tampilkan hasil prediksi
-            st.write("### Hasil Prediksi")
-
-            if result == 1:
-                st.success("Air **LAYAK** untuk diminum.")
-            else: 
-                st.warning("Air **TIDAK LAYAK** untuk diminum!")
+            st.success(f"Hasil Prediksi: {'Air Layak Minum.' if result == 1 else 'Air Tidak Layak Minum!'}")
         
         except Exception as e:
             prediction_status = "error"
@@ -129,7 +140,6 @@ if st.button("Prediksi Kelayakan Air", type="primary"):
 
             # Metrik jumlah requests
             REQUEST_COUNT.labels(model_name=MODEL_NAME, status=prediction_status).inc()
-
             # Metrik Latency
             PREDICTION_TIME.labels(model_name=MODEL_NAME).observe(latency)
 
