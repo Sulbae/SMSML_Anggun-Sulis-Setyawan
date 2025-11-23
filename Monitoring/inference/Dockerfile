@@ -20,8 +20,9 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Salin model
-# Menjadi:
 COPY --from=trainer /opt/ml/model/model.pkl /app/water_potability.pkl
+# Salin preprocessing pipeline
+COPY preprocessing_pipeline.joblib /app/preprocessing_pipeline.joblib
 
 # Salin app 
 COPY inference_app.py .
