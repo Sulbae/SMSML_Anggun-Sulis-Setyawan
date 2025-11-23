@@ -23,12 +23,3 @@ def data_preprocessing(input):
     df = preprocess_pipeline.transform(data)
 
     return df
-
-def prediction(data):
-
-    url = "http://127.0.0.1:5002/invocations"
-    headers = {"Content-Type": "application/json"}
-    response = requests.post(url, data=data, headers=headers)
-    response = response.json().get("predictions")
-    
-    return response
