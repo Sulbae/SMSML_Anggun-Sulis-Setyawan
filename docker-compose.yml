@@ -7,7 +7,7 @@ services:
     # Path Build
     build:
       context: ./Monitoring/inference
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
     image: water-potability-app:latest
     ports:
       - "8501:8501" # Streamlit UI
