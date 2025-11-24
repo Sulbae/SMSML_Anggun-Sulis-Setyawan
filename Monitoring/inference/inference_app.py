@@ -16,18 +16,18 @@ def init_metrics():
 
     metrics = {
         # Tracking Jumlah Request
-        "REQUEST_COUNT": Counter("streamlit_request_count", "Jumlah request prediksi", ["model_name", "status"]),
+        "REQUEST_COUNT": Counter("streamlit_request_count", "Jumlah request prediksi", ["model_name", "status"], registry=registry),
         # Tracking Waktu Response
-        "PREDICTION_TIME": Summary("streamlit_prediction_latency_seconds", "Waktu yang dibutuhkan untuk prediksi", ["model_name"]),
+        "PREDICTION_TIME": Summary("streamlit_prediction_latency_seconds", "Waktu yang dibutuhkan untuk prediksi", ["model_name"], registry=registry),
         # Penggunaan Sistem: CPU dan RAM
-        "CPU_USAGE": Gauge('system_cpu_usage', 'CPU Usage Percentage'),
-        "RAM_USAGE": Gauge('system_ram_usage', 'RAM Usage Percentage'),
+        "CPU_USAGE": Gauge('system_cpu_usage', 'CPU Usage Percentage', registry=registry),
+        "RAM_USAGE": Gauge('system_ram_usage', 'RAM Usage Percentage', registry=registry),
         # Distribusi Output
-        "OUTPUT_POTABILITY_COUNT": Counter("model_output_count", "Hitung jumlah utput per kelas", ["prediction"])
+        "OUTPUT_POTABILITY_COUNT": Counter("model_output_count", "Hitung jumlah utput per kelas", ["prediction"], registry=registry)
     }
 
     # Versi Model Aktif
-    MODEL_VERSION_GAUGE = Gauge("model_version", "Versi model saat ini", ["version"])
+    MODEL_VERSION_GAUGE = Gauge("model_version", "Versi model saat ini", ["version"], registry=registry)
     MODEL_VERSION_GAUGE.labels(version=MODEL_VERSION).set(1)
 
     try:
