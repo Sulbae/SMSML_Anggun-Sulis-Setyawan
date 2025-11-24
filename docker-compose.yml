@@ -16,10 +16,10 @@ services:
     # Memastikan server metrik di port 8000 sudah berjalan
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/metrics"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+      interval: 15s
+      timeout: 10s
+      retries: 8
+      start_period: 60s
   
   # Layanan Prometheus (Pengumpul metrik)
   prometheus:
