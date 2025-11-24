@@ -46,6 +46,8 @@ services:
     depends_on:
       streamlit:
         condition: service_healthy
+      node-exporter:
+        condition: service_started
 
   # Layanan Grafana (Visualisasi metrik)
   grafana:
