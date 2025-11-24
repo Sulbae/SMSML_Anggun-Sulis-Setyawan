@@ -49,7 +49,7 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
-      - grafana-storage:/var/lib/grafaran
+      - grafana-storage:/var/lib/grafana
       - ./grafana/grafana.ini:/etc/grafana/grafana.ini
     depends_on:
       - prometheus
