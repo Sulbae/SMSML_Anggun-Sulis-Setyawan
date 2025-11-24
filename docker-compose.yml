@@ -26,7 +26,8 @@ services:
   node-exporter:
     image: prom/node-exporter:latest
     container_name: node_exporter
-    network_mode: host
+    ports:
+      - "9100:9100"
     restart: always
   
   # Layanan Prometheus (Pengumpul metrik)
