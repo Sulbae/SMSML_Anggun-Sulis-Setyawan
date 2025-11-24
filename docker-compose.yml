@@ -12,6 +12,13 @@ services:
     ports:
       - "8501:8501" # Streamlit UI
       - "8000:8000" # Prometheus Port
+    restart: always
+    # Memastikan server metrik di port 8000 sudah berjalan
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8000/metrics || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   
   # Layanan Prometheus (Pengumpul metrik)
   prometheus:
@@ -22,11 +29,13 @@ services:
     volumes:
       # Path volume
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-storage:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
     depends_on:
-      - streamlit
+      streamlit:
+        condition: service_healthy
 
   # Layanan Grafana (Visualisasi metrik)
   grafana:
@@ -39,8 +48,10 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - grafana-storage:/var/lib/grafaran
     depends_on:
       - prometheus
   
 volumes:
   grafana-storage:
+  prometheus-storage:
