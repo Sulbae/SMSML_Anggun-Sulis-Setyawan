@@ -34,4 +34,4 @@ EXPOSE 8501
 EXPOSE 8000
 
 # Running Command (CMD)
-CMD [ "streamlit", "run", "inference_app.py", "--server.port", "8501", "--server.address", "0.0.0.0" ]
+CMD [ "streamlit", "run", "inference_app.py", "--server.port=8501", "--server.address=0.0.0.0" ]
