@@ -108,7 +108,7 @@ if st.button("Prediksi Kelayakan Air", type="primary"):
         
         try:
             # Preprocessing
-            new_data = data_preprocessing(data=data_input)
+            new_data = data_preprocessing(data_input)
             st.write("### Data setelah diolah:")
             st.dataframe(new_data)
 
