@@ -68,13 +68,13 @@ else:
 
 # Input Data
 columns = [
-        "pH", "Hardness", "Solids", 
+        "ph", "Hardness", "Solids", 
         "Chloramines", "Sulfate", "Conductivity", 
         "Organic_carbon", "Trihalomethanes", "Turbidity"
 ]
 
 ## Input data numerik
-ph = st.number_input("pH", min_value=0.1, max_value=14.0, value=7.0)
+ph = st.number_input("ph", min_value=0.1, max_value=14.0, value=7.0)
 hardness = st.number_input("Hardness", min_value=0.1, max_value=1000.0, value=200.0)
 solids = st.number_input("Solids", min_value=0.1, max_value=100000.0, value=20000.0)
 chloramines = st.number_input("Chloramines", min_value=0.1, max_value=100.0, value=7.0)
